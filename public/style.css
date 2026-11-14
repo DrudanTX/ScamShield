@@ -1,0 +1,84 @@
+:root {
+  color-scheme: light;
+  font: 16px/1.5 system-ui, sans-serif;
+  color: #242622;
+  background: #f6f5f1;
+  --muted: #535950;
+  --line: #dcded5;
+  --green: #194c40;
+  --soft: #f5f5f0;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 1200px; margin: auto; padding: 24px 32px 48px; }
+header { border-bottom: 1px solid var(--line); padding-bottom: 16px; }
+h1 { margin: 0; font-size: 1.125rem; font-weight: 600; }
+.intro { padding: 24px 0; }
+.intro h2 { margin: 0; font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1.15; font-weight: 500; }
+.intro p { margin: 8px 0 0; color: var(--muted); }
+.grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr); gap: 20px; align-items: start; }
+section { min-width: 0; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+h3 { margin: 0 0 16px; font-size: 1.125rem; font-weight: 600; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; }
+button {
+  min-height: 44px; padding: 8px 12px; border: 1px solid #b8c1b7; border-radius: 8px;
+  background: #fff; color: var(--green); font: inherit; font-weight: 600; cursor: pointer;
+}
+button:hover:not(:disabled) { background: var(--soft); }
+#listen { background: var(--green); color: #fff; border-color: var(--green); }
+#listen:hover:not(:disabled) { background: #123c32; }
+button:disabled { opacity: .55; cursor: default; }
+:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+#consent { margin: 8px 0 12px; color: var(--muted); font-size: .9375rem; }
+.voice-controls label { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-weight: 400; }
+#mute { width: 16px; height: 16px; margin: 0; accent-color: var(--green); }
+#listening { margin: 12px 0 0; color: var(--green); font-weight: 600; }
+pre, textarea {
+  background: var(--soft); border: 1px solid var(--line); border-radius: 8px;
+  padding: 12px; font: inherit; color: inherit;
+}
+pre { height: 200px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; margin: 16px 0 24px; }
+label { display: block; font-weight: 600; margin-bottom: 8px; }
+textarea { width: 100%; display: block; margin: 0 0 12px; resize: vertical; }
+.score strong { font-size: 3.5rem; line-height: 1; font-weight: 500; font-variant-numeric: tabular-nums; }
+.score span, #status, #threshold { color: var(--muted); }
+meter { width: 100%; height: 16px; margin-top: 12px; }
+#threshold { margin: 4px 0 16px; font-size: .875rem; }
+#reason { margin: 0; }
+#status { border-top: 1px solid var(--line); margin: 16px 0 0; padding-top: 12px; font-size: .9375rem; }
+#status:empty, #tactics:empty { display: none; }
+#tactics { display: flex; gap: 8px; flex-wrap: wrap; list-style: none; padding: 0; }
+#tactics li { padding: 4px 8px; border-radius: 4px; background: #f8eeea; color: #783927; font-size: .875rem; }
+dialog { border: 0; margin: 0; width: 100%; height: 100%; max-width: none; max-height: none; background: #a31924; color: #fff; padding: 28px; }
+dialog[open] { display: grid; place-items: center; }
+dialog > div { max-width: 640px; }
+dialog h2 { font-size: clamp(2.5rem, 9vw, 5rem); line-height: 1; margin: 0 0 24px; font-weight: 600; }
+dialog p { font-size: 1.25rem; }
+dialog button { color: #8d1420; }
+dialog button:focus-visible { outline-color: #fff; }
+mark { background: #fac9cc; color: #69131a; border-radius: 3px; }
+mark small { display: inline-block; font-size: .75em; font-weight: 600; margin: 0 4px; }
+.highlight-new { animation: highlight-in .25s ease-out both; }
+@keyframes highlight-in { from { background: transparent; } }
+@media (max-width: 680px) {
+  main { padding: 20px 16px 32px; }
+  .grid { grid-template-columns: 1fr; }
+  section { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .highlight-new { animation: none; } }
+
+.samples { margin-bottom: 20px; padding-block: 16px; }
+.samples h3 { margin-bottom: 8px; }
+.samples p, #source { margin: 8px 0 0; font-size: .9375rem; color: var(--muted); }
+#source { margin: 0 0 12px; }
+#alert-evidence { margin: 0; padding: 12px 16px; border-inline-start: 4px solid currentColor; background: #83151d; font-size: 1.125rem; }
+dialog { overflow: auto; }
+
+.brand { margin: 0; font-size: 1.125rem; font-weight: 600; }
+.welcome { max-width: 560px; margin: clamp(24px, 8vh, 80px) auto 0; }
+.welcome h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); line-height: 1.15; font-weight: 500; }
+.welcome p { color: var(--muted); margin: 12px 0 24px; }
+.welcome .controls { align-items: center; gap: 12px; }
+#get-started { background: var(--green); color: #fff; border-color: var(--green); }
+#get-started:hover { background: #123c32; }
+#try-sample { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; color: var(--green); }

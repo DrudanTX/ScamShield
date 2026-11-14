@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scam Shield</title>
+<link rel="stylesheet" href="/style.css">
+<script type="module" src="/app.js"></script>
+</head>
+<body>
+<main id="onboarding" hidden>
+<header><p class="brand">Scam Shield</p></header>
+<section class="welcome" aria-labelledby="welcome-title">
+<h1 id="welcome-title">Spot scam calls before you act</h1>
+<p>ScamShield highlights suspicious requests and suggests what to do next.</p>
+<div class="controls">
+<button id="get-started" type="button">Get started</button>
+<a id="try-sample" href="#samples">Try a sample</a>
+</div>
+</section>
+</main>
+<main id="app">
+<header><h1 id="app-title" tabindex="-1">Scam Shield</h1></header>
+<div class="intro"><h2>Check a call for scam tactics</h2><p>Listen to a call on speaker, play the sample, or paste a transcript.</p></div>
+<section class="samples" aria-label="Demo samples">
+<h3 id="samples" tabindex="-1">Try a sample</h3>
+<div class="controls"><button id="sample-scam" type="button">Synthetic scam call</button><button id="sample-ordinary" type="button">Ordinary appointment reminder</button></div>
+<p>Bundled transcripts. No microphone needed.</p>
+</section>
+<div class="grid">
+<section>
+<h3>Call transcript</h3>
+<p id="source" hidden></p>
+<div class="controls"><button id="listen" type="button" aria-describedby="consent">Listen</button><button id="play" type="button">Play sample call</button><button id="stop" type="button" disabled>Stop</button><button id="reset" type="button">Reset</button></div>
+<p id="consent">This app listens to the call on speaker. Audio is not saved.</p>
+<div class="voice-controls"><label><input id="mute" type="checkbox"> Mute voice warnings</label></div>
+<p id="listening" role="status" hidden>Listening...</p>
+<pre id="live" aria-label="Live transcript">The live transcript will appear here.</pre>
+<label for="paste">Paste a transcript</label>
+<textarea id="paste" rows="5" placeholder="Paste what the caller said"></textarea>
+<button id="analyze" type="button">Analyze transcript</button>
+</section>
+<section>
+<h3>Scam risk</h3>
+<div class="score"><strong id="score">—</strong><span> / 100</span></div>
+<meter id="meter" min="0" max="100" high="74" optimum="0" value="0" aria-label="Scam risk" aria-describedby="threshold"></meter>
+<p id="threshold">High-risk alert at 75</p>
+<p id="reason">Waiting for a transcript.</p>
+<ul id="tactics" aria-label="Detected tactics"></ul>
+<div id="signals" hidden><h4>Legitimate signals</h4><ul id="signal-list"></ul></div>
+<p id="status" role="status"></p>
+</section>
+</div>
+</main>
+<dialog id="alert" aria-labelledby="alert-title" aria-describedby="alert-reason">
+<div><h2 id="alert-title">High scam risk</h2><blockquote id="alert-evidence" hidden></blockquote><p id="alert-reason"></p><p><strong id="alert-action">Hang up and call back on a number you trust.</strong></p><form method="dialog"><button>Dismiss alert</button></form></div>
+</dialog>
+</body>
+</html>
