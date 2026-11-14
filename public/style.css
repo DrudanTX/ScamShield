@@ -107,12 +107,6 @@ header { border-bottom: 2px solid var(--line); }
 header h1, .brand { font-size: 1.55rem; }
 .intro { padding: 32px 0 20px; }
 .intro h2 { font-size: clamp(2.2rem, 6vw, 4.2rem); max-width: 18ch; }
-.intro .personal-note {
-  display: inline-block; margin: 20px 0 4px; padding: 0 8px 2px;
-  font: 600 1.35rem/1 Caveat, "Segoe Print", cursive;
-  color: inherit; background: var(--soft); transform: rotate(-1.5deg);
-}
-.personal-note span { white-space: nowrap; }
 section { border: 2px solid var(--line); border-radius: 0; background: var(--paper); }
 .samples { background: transparent; border-width: 0 0 2px; padding-inline: 0; margin-bottom: 24px; }
 .grid { grid-template-columns: minmax(0, 2.2fr) minmax(240px, 1fr); gap: 24px; }
