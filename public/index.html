@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Scam Shield</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=IBM+Plex+Sans:wght@400;600&family=Newsreader:wght@500;600&display=swap">
 <link rel="stylesheet" href="/style.css">
 <script type="module" src="/app.js"></script>
 </head>
@@ -15,7 +16,7 @@
 <h1 id="welcome-title" tabindex="-1">Welcome</h1>
 <div id="walkthrough-steps">
 <div data-title="Welcome"><p>Scam Shield listens for the warning signs of a scam call and tells you to hang up before it’s too late. It says ‘suspicious,’ never ‘definitely a scam,’ so you always make the final call.</p></div>
-<div data-title="Listen" hidden><p>Put the call on speakerphone and place this device next to it. Tap Listen and Shield checks the call as it happens. Phones don’t let apps hear a call directly, so use a second device (laptop, tablet, or an old phone). Shield will ask for microphone permission. Audio is not saved.</p></div>
+<div data-title="Listen" hidden><p>Put the call on speakerphone and place this device next to it. Tap Listen to this call and Shield checks the call as it happens. Phones don’t let apps hear a call directly, so use a second device (laptop, tablet, or an old phone). Shield will ask for microphone permission. Audio is not saved.</p></div>
 <div data-title="Paste or describe" hidden><p>Just hung up? Paste a message or describe what the caller said, or type what you remember. You can also paste a suspicious text message.</p></div>
 <div data-title="Live transcript and highlights" hidden><p>You’ll see the words of the call as they’re spoken. Red highlights mark warning signs, each labeled, like ‘fake authority,’ ‘threat,’ or ‘urgency.’</p></div>
 <div data-title="Risk meter and alert" hidden><p>The meter shows how suspicious the call looks. If it gets too high, the screen turns red and Shield tells you what to do next: hang up, and call back on a number you look up yourself.</p></div>
@@ -35,7 +36,7 @@
 </main>
 <main id="app">
 <header><h1 id="app-title" tabindex="-1">Scam Shield</h1></header>
-<div class="intro"><h2>Check a call for scam tactics</h2><p>Listen to a call on speaker, try a sample, or paste or describe a suspicious call or message.</p></div>
+<div class="intro"><h2>Is this call a scam? Let’s find out.</h2><p>Put the call on speaker. Shield listens and tells you when something sounds off.</p><p class="personal-note">Built for my grandparent. <span>– Dhruv</span></p></div>
 <section class="samples" aria-label="Demo samples">
 <h3 id="samples" tabindex="-1">Try a sample</h3>
 <div class="controls"><button id="sample-scam" type="button">Synthetic scam call</button><button id="sample-ordinary" type="button">Ordinary appointment reminder</button></div>
@@ -45,13 +46,13 @@
 <section>
 <h3>Call transcript</h3>
 <p id="source" hidden></p>
-<div class="controls"><button id="listen" type="button" aria-describedby="consent">Listen</button><button id="play" type="button">Play sample call</button><button id="stop" type="button" disabled>Stop</button><button id="reset" type="button">Reset</button></div>
+<div class="controls"><button id="listen" type="button" aria-describedby="consent">Listen to this call</button><button id="play" type="button">Play sample call</button><button id="stop" type="button" disabled>Stop</button><button id="reset" type="button">Reset</button></div>
 <p id="consent">This app listens to the call on speaker. Audio is not saved.</p>
 <div class="voice-controls"><label><input id="mute" type="checkbox"> Mute voice warnings</label></div>
 <p id="listening" role="status" hidden>Listening...</p>
 <pre id="live" aria-label="Live transcript">The live transcript will appear here.</pre>
 <label for="paste">Paste a transcript</label>
-<textarea id="paste" rows="5" placeholder="Paste a message or describe what the caller said"></textarea>
+<textarea id="paste" rows="5" placeholder="Just hung up? Type or paste what they said."></textarea>
 <button id="analyze" type="button">Analyze transcript</button>
 </section>
 <section>
@@ -59,15 +60,17 @@
 <div class="score"><strong id="score">—</strong><span> / 100</span></div>
 <meter id="meter" min="0" max="100" high="74" optimum="0" value="0" aria-label="Scam risk" aria-describedby="threshold"></meter>
 <p id="threshold">High-risk alert at 75</p>
-<p id="reason">Waiting for a transcript.</p>
+<p id="reason">Nothing to check yet. Quiet is good.</p>
 <ul id="tactics" aria-label="Detected tactics"></ul>
 <div id="signals" hidden><h4>Legitimate signals</h4><ul id="signal-list"></ul></div>
 <p id="status" role="status"></p>
 </section>
 </div>
+<details id="diagnostics" hidden><summary>Debug details</summary><pre id="diagnostic-message"></pre></details>
+<footer>Made in a weekend for Build Sprint. It says ‘suspicious,’ never ‘definitely a scam.’</footer>
 </main>
 <dialog id="alert" aria-labelledby="alert-title" aria-describedby="alert-reason">
-<div><h2 id="alert-title">Suspicious call</h2><blockquote id="alert-evidence" hidden></blockquote><p id="alert-reason"></p><p><strong id="alert-action">Hang up and call back on a number you trust.</strong></p><form method="dialog"><button>Dismiss alert</button></form></div>
+<div><h2 id="alert-title">Hang up. This sounds like a scam.</h2><p>Don’t call back the number that called you. Look up the real one yourself.</p><blockquote id="alert-evidence" hidden></blockquote><p id="alert-reason"></p><p><strong id="alert-action">Hang up and call back on a number you trust.</strong></p><form method="dialog"><button>Dismiss alert</button></form></div>
 </dialog>
 </body>
 </html>

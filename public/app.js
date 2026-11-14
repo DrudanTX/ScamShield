@@ -111,6 +111,7 @@ function list(id, items) {
 function render(result) {
   get('score').textContent = result.risk ?? '—';
   get('meter').value = result.risk ?? 0;
+  get('meter').classList.toggle('high-risk', (result.risk ?? 0) >= 75);
   get('reason').textContent = result.reason || 'No score yet.';
   list('tactics', result.tactics.map(label => label.replaceAll('_', ' ')));
   list('signal-list', result.legit_signals);
@@ -142,13 +143,22 @@ const sampleScam = 'This is your bank’s fraud department.\nYour account will b
 const sampleOrdinary = 'Hello, this is a routine reminder from your dental office.\nYour appointment is Tuesday at ten in the morning.\nIf you need to reschedule, call the number on your appointment card.';
 const audioTranscript = 'Hello. This is Officer Morgan calling from the Social Security office. We found suspicious activity associated with your account. If you hang up, we will issue a warrant for your arrest. You need to act now. Stay on the line and don’t tell anyone about this call. Go to the nearest store and buy a gift card. Then read the number on the back to me. If the store asks, say the card is for a friend. You have ten minutes to clear this up.\nI need to verify this. I’m going to hang up and call the office myself.';
 
+function showDiagnostic(error) {
+  console.error(error);
+  get('diagnostic-message').textContent = String(error);
+  get('diagnostics').hidden = false;
+}
+
 function clearResult() {
+  get('diagnostics').hidden = true;
+  get('diagnostics').open = false;
+  get('diagnostic-message').textContent = '';
   if (alert.open) alert.close();
   get('alert-evidence').textContent = '';
   get('alert-evidence').hidden = true;
   get('source').hidden = true;
   get('live').textContent = 'The transcript will appear here.';
-  render({risk: null, reason: 'Waiting for a transcript.', tactics: [], legit_signals: []});
+  render({risk: null, reason: 'Nothing to check yet. Quiet is good.', tactics: [], legit_signals: []});
 }
 
 function evidenceFor(transcript, flags) {
@@ -284,7 +294,7 @@ async function check(run) {
     if (run.liveText && !run.voicePaused) updateHighlights(run);
     const result = score(data, transcript);
     render(result);
-    get('status').textContent = ({scam: 'Suspicious tactics detected', suspicious: 'Suspicious tactics detected', likely_safe: 'No strong scam signals detected'})[data.verdict];
+    get('status').textContent = ({scam: 'Suspicious tactics detected', suspicious: 'Suspicious tactics detected', likely_safe: 'Sounds fine. They asked for nothing and didn’t rush you.'})[data.verdict];
     if (result.risk < 75) run.alerted = false;
     if (result.risk >= 75 && !run.alerted) {
       run.alerted = true;
@@ -302,8 +312,9 @@ async function check(run) {
     }
   } catch (error) {
     if (session !== run || run.voiceGeneration !== voiceGeneration) return;
-    render({risk: null, reason: 'Gemini scoring unavailable.', tactics: [], legit_signals: []});
-    get('status').textContent = error.message;
+    showDiagnostic(error);
+    render({risk: null, reason: 'Shield couldn’t check this transcript.', tactics: [], legit_signals: []});
+    get('status').textContent = 'Try again in a moment.';
   } finally {
     run.busy = false;
   }
@@ -361,7 +372,10 @@ async function listen(microphone) {
     } catch (error) {
       if (session === run) {
         stop();
-        get('status').textContent = error.message;
+        showDiagnostic(error);
+        get('status').textContent = ['NotAllowedError', 'PermissionDeniedError', 'SecurityError'].includes(error.name)
+          ? 'Shield can’t hear anything without the microphone. You can still paste what the caller said.'
+          : 'Shield couldn’t start the microphone. You can still paste what the caller said.';
       }
       return;
     }
@@ -378,11 +392,13 @@ async function listen(microphone) {
     if (session !== run) return;
     failed = true;
     if (!microphone) {
-      scanText(audioTranscript, 'Live transcription unavailable · bundled scam transcript');
+      scanText(audioTranscript, 'Shield couldn’t hear the sample. Checking the written version.');
+      showDiagnostic(message);
       return;
     }
     stop();
-    get('status').textContent = message;
+    showDiagnostic(message);
+    get('status').textContent = 'Shield lost the audio. Try listening again, or paste what the caller said.';
   }
 
   socket.onerror = () => fail('Live transcription connection failed.');
