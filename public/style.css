@@ -82,3 +82,7 @@ dialog { overflow: auto; }
 #get-started { background: var(--green); color: #fff; border-color: var(--green); }
 #get-started:hover { background: #123c32; }
 #try-sample { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; color: var(--green); }
+#walkthrough-progress { margin: 0 0 8px; font-size: .875rem; }
+#walkthrough-demo h2 { font-size: 1.125rem; margin: 16px 0 8px; }
+.welcome-mute { display: inline-flex; align-items: center; gap: 8px; margin: 0; }
+.walkthrough-nav { margin-top: 16px; }

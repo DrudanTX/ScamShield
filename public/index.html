@@ -11,18 +11,31 @@
 <main id="onboarding" hidden>
 <header><p class="brand">Scam Shield</p></header>
 <section class="welcome" aria-labelledby="welcome-title">
-<h1 id="welcome-title">Spot scam calls before you act</h1>
-<p>ScamShield highlights suspicious requests and suggests what to do next.</p>
-<p>Put the call on speaker and keep it near this device. Select <strong>Listen</strong> in Scam Shield and allow microphone access to see the call transcribed as it happens. Select <strong>Stop</strong> when you’re done.</p>
-<div class="controls">
-<button id="get-started" type="button">Get started</button>
-<a id="try-sample" href="#samples">Try a sample</a>
+<p id="walkthrough-progress">Step 1 of 6</p>
+<h1 id="welcome-title" tabindex="-1">Welcome</h1>
+<div id="walkthrough-steps">
+<div data-title="Welcome"><p>Scam Shield listens for the warning signs of a scam call and tells you to hang up before it’s too late. It says ‘suspicious,’ never ‘definitely a scam,’ so you always make the final call.</p></div>
+<div data-title="Listen" hidden><p>Put the call on speakerphone and place this device next to it. Tap Listen and Shield checks the call as it happens. Phones don’t let apps hear a call directly, so use a second device (laptop, tablet, or an old phone). Shield will ask for microphone permission. Audio is not saved.</p></div>
+<div data-title="Paste or describe" hidden><p>Just hung up? Paste a message or describe what the caller said, or type what you remember. You can also paste a suspicious text message.</p></div>
+<div data-title="Live transcript and highlights" hidden><p>You’ll see the words of the call as they’re spoken. Red highlights mark warning signs, each labeled, like ‘fake authority,’ ‘threat,’ or ‘urgency.’</p></div>
+<div data-title="Risk meter and alert" hidden><p>The meter shows how suspicious the call looks. If it gets too high, the screen turns red and Shield tells you what to do next: hang up, and call back on a number you look up yourself.</p></div>
+<div data-title="Spoken warning" hidden><p>Shield can say its warning out loud. Tap Test voice to check your volume, or Mute to see the warning only.</p></div>
+</div>
+<div id="walkthrough-demo" hidden>
+<div class="controls"><button id="test-voice" type="button">Test voice</button><label class="welcome-mute"><input id="welcome-mute" type="checkbox"> Mute</label></div>
+<p id="voice-status" role="status" hidden></p>
+<h2>Try it now</h2>
+<div class="controls"><button id="demo-scam" type="button">Run demo: Synthetic scam</button><button id="demo-ordinary" type="button">Run demo: Ordinary reminder</button></div>
+</div>
+<div class="controls walkthrough-nav">
+<button id="walkthrough-back" type="button" hidden>Back</button>
+<button id="get-started" type="button">Next</button>
 </div>
 </section>
 </main>
 <main id="app">
 <header><h1 id="app-title" tabindex="-1">Scam Shield</h1></header>
-<div class="intro"><h2>Check a call for scam tactics</h2><p>Listen to a call on speaker, play the sample, or paste a transcript.</p></div>
+<div class="intro"><h2>Check a call for scam tactics</h2><p>Listen to a call on speaker, try a sample, or paste or describe a suspicious call or message.</p></div>
 <section class="samples" aria-label="Demo samples">
 <h3 id="samples" tabindex="-1">Try a sample</h3>
 <div class="controls"><button id="sample-scam" type="button">Synthetic scam call</button><button id="sample-ordinary" type="button">Ordinary appointment reminder</button></div>
@@ -38,7 +51,7 @@
 <p id="listening" role="status" hidden>Listening...</p>
 <pre id="live" aria-label="Live transcript">The live transcript will appear here.</pre>
 <label for="paste">Paste a transcript</label>
-<textarea id="paste" rows="5" placeholder="Paste what the caller said"></textarea>
+<textarea id="paste" rows="5" placeholder="Paste a message or describe what the caller said"></textarea>
 <button id="analyze" type="button">Analyze transcript</button>
 </section>
 <section>
@@ -54,7 +67,7 @@
 </div>
 </main>
 <dialog id="alert" aria-labelledby="alert-title" aria-describedby="alert-reason">
-<div><h2 id="alert-title">High scam risk</h2><blockquote id="alert-evidence" hidden></blockquote><p id="alert-reason"></p><p><strong id="alert-action">Hang up and call back on a number you trust.</strong></p><form method="dialog"><button>Dismiss alert</button></form></div>
+<div><h2 id="alert-title">Suspicious call</h2><blockquote id="alert-evidence" hidden></blockquote><p id="alert-reason"></p><p><strong id="alert-action">Hang up and call back on a number you trust.</strong></p><form method="dialog"><button>Dismiss alert</button></form></div>
 </dialog>
 </body>
 </html>

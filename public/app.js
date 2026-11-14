@@ -6,7 +6,7 @@ let session;
 const alert = get('alert');
 
 const voice = window.speechSynthesis;
-const warning = 'Warning. This call looks like a scam. Hang up now, and call back on a number you trust.';
+const warning = 'Warning. This call looks suspicious. Hang up now, and call back on a number you trust.';
 let voiceUnlocked = false;
 let speech;
 let voiceRun;
@@ -176,7 +176,7 @@ function scanText(transcript, source) {
   });
 }
 
-const onboardingKey = 'scam-shield-onboarding-complete';
+const onboardingKey = 'scam-shield-walkthrough-v1-complete';
 let onboardingComplete = false;
 try {
   onboardingComplete = localStorage.getItem(onboardingKey) === 'true';
@@ -197,11 +197,44 @@ function completeOnboarding(destination) {
   get(destination).focus();
 }
 
-get('get-started').onclick = () => completeOnboarding('app-title');
-get('try-sample').onclick = event => {
-  event.preventDefault();
-  completeOnboarding('samples');
+const steps = [...get('walkthrough-steps').children];
+let currentStep = 0;
+
+function showStep(index) {
+  currentStep = index;
+  const finalStep = index === steps.length - 1;
+  steps.forEach((step, i) => { step.hidden = i !== index; });
+  get('walkthrough-progress').textContent = `Step ${index + 1} of ${steps.length}`;
+  get('welcome-title').textContent = steps[index].dataset.title;
+  get('walkthrough-back').hidden = index === 0;
+  get('walkthrough-demo').hidden = !finalStep;
+  get('get-started').textContent = finalStep ? 'Open Scam Shield' : 'Next';
+  get('welcome-title').focus();
+}
+
+get('get-started').onclick = () => {
+  if (currentStep === steps.length - 1) completeOnboarding('app-title');
+  else showStep(currentStep + 1);
 };
+get('walkthrough-back').onclick = () => showStep(currentStep - 1);
+get('welcome-mute').onchange = () => {
+  get('mute').checked = get('welcome-mute').checked;
+  get('test-voice').disabled = get('mute').checked;
+  get('mute').onchange();
+};
+get('test-voice').onclick = () => {
+  if (voice) speakWarning();
+  else {
+    get('voice-status').textContent = 'Voice playback is unavailable in this browser.';
+    get('voice-status').hidden = false;
+  }
+};
+for (const [demo, sample] of [['demo-scam', 'sample-scam'], ['demo-ordinary', 'sample-ordinary']]) {
+  get(demo).onclick = () => {
+    completeOnboarding('samples');
+    get(sample).click();
+  };
+}
 
 get('sample-scam').onclick = () => scanText(sampleScam, 'Synthetic scam · bundled transcript');
 get('sample-ordinary').onclick = () => scanText(sampleOrdinary, 'Ordinary appointment reminder · bundled transcript');
@@ -251,7 +284,7 @@ async function check(run) {
     if (run.liveText && !run.voicePaused) updateHighlights(run);
     const result = score(data, transcript);
     render(result);
-    get('status').textContent = ({scam: 'Scam tactics detected', suspicious: 'Suspicious tactics detected', likely_safe: 'No strong scam signals detected'})[data.verdict];
+    get('status').textContent = ({scam: 'Suspicious tactics detected', suspicious: 'Suspicious tactics detected', likely_safe: 'No strong scam signals detected'})[data.verdict];
     if (result.risk < 75) run.alerted = false;
     if (result.risk >= 75 && !run.alerted) {
       run.alerted = true;
