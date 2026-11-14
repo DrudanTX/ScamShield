@@ -111,7 +111,7 @@ function list(id, items) {
 function render(result) {
   get('score').textContent = result.risk ?? '—';
   get('meter').value = result.risk ?? 0;
-  get('reason').textContent = result.reason || 'Waiting for a Gemini score.';
+  get('reason').textContent = result.reason || 'No score yet.';
   list('tactics', result.tactics.map(label => label.replaceAll('_', ' ')));
   list('signal-list', result.legit_signals);
   get('signals').hidden = !result.legit_signals.length;
