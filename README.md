@@ -8,7 +8,7 @@ Run locally with Node.js 22 or newer.
 
 Paste a transcript and select **Analyze transcript**, or play the bundled sample call. Gemini scores the pasted text or the latest 30 seconds of timestamped audio transcript. Checks run every four seconds when the previous check has finished. Each matched keyword adds two points, up to ten total. The final score is capped at 100. One score of 75 or above opens the alert.
 
-Gemini responses and errors appear in the server terminal. Open [the health endpoint](http://localhost:3000/health) to make one small test request. Set `GEMINI_MODEL` in `.env` to change the default Flash model, `gemini-2.5-flash`.
+Gemini responses and errors appear in the server terminal. Open [the health endpoint](http://localhost:3000/health) to make one small test request. Set `GEMINI_MODEL` in `.env` to change the default Flash model, `gemini-3.1-flash-lite`.
 
 ## Microphone
 
