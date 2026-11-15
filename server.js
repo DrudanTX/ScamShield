@@ -121,6 +121,29 @@ async function handleRequest(req, res) {
       return json(res, 502, {error: message, kind: raw === undefined ? 'provider' : 'response', raw});
     }
   }
+  if (req.method === 'POST' && path === '/api/listen-token') {
+    const key = process.env.DEEPGRAM_API_KEY;
+    if (!key) return json(res, 503, {error: 'Live listening has not been set up on this site.'});
+    try {
+      const response = await fetch('https://api.deepgram.com/v1/auth/grant', {
+        method: 'POST',
+        headers: {Authorization: 'Token ' + key},
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!response.ok) {
+        console.error('Deepgram token request failed with HTTP', response.status);
+        return json(res, 502, {error: response.status === 403
+          ? 'This site’s Deepgram key does not allow live listening in the browser.'
+          : 'Shield couldn’t connect to the live transcription service.'});
+      }
+      const {access_token: token} = await response.json();
+      if (typeof token !== 'string' || !token) throw new Error('Missing temporary access token');
+      return json(res, 200, {token});
+    } catch (error) {
+      console.error('Deepgram token request failed:', error.message);
+      return json(res, 502, {error: 'Shield couldn’t connect to the live transcription service.'});
+    }
+  }
   if (req.method === 'GET' && path === '/health') {
     try {
       const raw = await generate('Return the JSON object {"ok":true}.', undefined, false);

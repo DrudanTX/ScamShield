@@ -384,7 +384,22 @@ async function listen(microphone) {
       return;
     }
   }
-  const socket = new WebSocket(new URL('/api/listen', location.href.replace(/^http/, 'ws')));
+  const direct = location.hostname.endsWith('.vercel.app');
+  let socket;
+  try {
+    if (direct) {
+      const response = await fetch('/api/listen-token', {method: 'POST', signal: run.controller.signal});
+      const data = await response.json();
+      if (session !== run) return;
+      if (!response.ok) return fail(data.error, undefined, data.error);
+      const url = 'wss://api.deepgram.com/v1/listen?model=nova-3&encoding=linear16&sample_rate=16000&channels=1&interim_results=true&smart_format=true';
+      socket = new WebSocket(url, ['bearer', data.token]);
+    } else {
+      socket = new WebSocket(new URL('/api/listen', location.href.replace(/^http/, 'ws')));
+    }
+  } catch (error) {
+    return fail(error, undefined, 'Shield couldn’t connect to the live transcription service.');
+  }
   let pump;
   run.cleanup = () => {
     clearInterval(pump);
@@ -402,7 +417,7 @@ async function listen(microphone) {
       get('stop').disabled = true;
     };
   }
-  function fail(message, fallbackMessage = 'Shield couldn’t hear the sample. Checking the written version.') {
+  function fail(message, fallbackMessage = 'Shield couldn’t hear the sample. Checking the written version.', statusMessage = 'Shield lost the audio. Try listening again, or paste what the caller said.') {
     if (session !== run) return;
     failed = true;
     if (!microphone) {
@@ -412,7 +427,7 @@ async function listen(microphone) {
     }
     stop();
     showDiagnostic(message);
-    get('status').textContent = 'Shield lost the audio. Try listening again, or paste what the caller said.';
+    get('status').textContent = statusMessage;
   }
 
   socket.onerror = () => fail('Live transcription connection failed.');
@@ -434,9 +449,8 @@ async function listen(microphone) {
       }
     }
   };
-  socket.onmessage = async event => {
+  const handleMessage = async message => {
     if (session !== run) return;
-    const message = JSON.parse(event.data);
     if (message.error) return fail(message.error);
     if (message.ready && microphone) {
       try {
@@ -481,7 +495,7 @@ async function listen(microphone) {
           if (audio.ended && finishedAt === undefined) {
             finishedAt = audio.duration;
             clearInterval(pump);
-            if (socket.readyState === WebSocket.OPEN) socket.send('end');
+            if (socket.readyState === WebSocket.OPEN) socket.send(direct ? JSON.stringify({type: 'CloseStream'}) : 'end');
 
           }
         };
@@ -505,6 +519,8 @@ async function listen(microphone) {
       updateHighlights(run);
     }
   };
+  socket.onmessage = event => handleMessage(JSON.parse(event.data));
+  if (direct) socket.onopen = () => handleMessage({ready: true});
 }
 
 async function openMicrophone(run) {
