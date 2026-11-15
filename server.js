@@ -26,6 +26,23 @@ const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const key = process.env.GEMINI_API_KEY;
 const gemini = key ? new GoogleGenAI({apiKey: key, httpOptions: {timeout: 12000, retryOptions: {attempts: 1}}}) : null;
 
+const scoringSchema = {
+  type: 'object',
+  required: ['risk', 'verdict', 'tactics', 'reason', 'legit_signals', 'flagged_phrases'],
+  properties: {
+    risk: {type: 'integer', minimum: 0, maximum: 100},
+    verdict: {type: 'string', enum: ['scam', 'suspicious', 'likely_safe']},
+    tactics: {type: 'array', items: {type: 'string', enum: tactics}},
+    reason: {type: 'string'},
+    legit_signals: {type: 'array', items: {type: 'string'}},
+    flagged_phrases: {type: 'array', maxItems: 6, items: {
+      type: 'object',
+      required: ['phrase', 'tactic'],
+      properties: {phrase: {type: 'string'}, tactic: {type: 'string', enum: tactics}},
+    }},
+  },
+};
+
 function redact(value) {
   const message = String(value ?? '');
   return key ? message.replaceAll(key, '[REDACTED]') : message;
@@ -33,7 +50,7 @@ function redact(value) {
 
 async function generate(contents, systemInstruction, retry = true) {
   if (!gemini) throw Object.assign(new Error('Add GEMINI_API_KEY to .env.'), {status: 503});
-  const request = {model, contents, config: {temperature: 0, responseMimeType: 'application/json', systemInstruction}};
+  const request = {model, contents, config: {temperature: 0, responseMimeType: 'application/json', systemInstruction, responseJsonSchema: systemInstruction ? scoringSchema : undefined}};
   for (let attempt = 0; ; attempt++) {
     try {
       const response = await gemini.models.generateContent(request);
@@ -100,8 +117,8 @@ async function handleRequest(req, res) {
       return json(res, 200, {risk, verdict, tactics, reason, legit_signals, flagged_phrases, raw});
     } catch (error) {
       const message = redact(error.message);
-      console.error('Scoring failed:', message);
-      return json(res, 502, {error: message, raw});
+      console.error('Scoring failed:', redact(error.stack ?? message));
+      return json(res, 502, {error: message, kind: raw === undefined ? 'provider' : 'response', raw});
     }
   }
   if (req.method === 'GET' && path === '/health') {

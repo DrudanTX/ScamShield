@@ -49,7 +49,7 @@ function speakWarning() {
     utterance.lang = preferred.lang;
   }
   utterance.rate = 0.9;
-  utterance.volume = 1;
+  utterance.volume = 0.5;
   utterance.onend = finish;
   utterance.onerror = finish;
   voice.speak(utterance);
@@ -286,8 +286,8 @@ async function check(run) {
     });
     const data = await response.json();
     if (session !== run || run.voiceGeneration !== voiceGeneration) return;
-    if (!response.ok) throw new Error(data.error);
-    for (const flag of data.flagged_phrases) {
+    if (!response.ok) throw Object.assign(new Error(data.error), {kind: data.kind, raw: data.raw});
+    for (const flag of Array.isArray(data.flagged_phrases) ? data.flagged_phrases : []) {
       const key = flag.phrase.trim().toLowerCase();
       if (!run.flags.has(key)) run.flags.set(key, flag);
     }
@@ -306,14 +306,18 @@ async function check(run) {
         ? 'Hang up and contact the organization through its official app or a number you already trust.'
         : 'Hang up and call back on a number you trust.';
       if (!alert.open) {
+        run.stopSample?.();
         alert.showModal();
         speakWarning();
       }
     }
   } catch (error) {
     if (session !== run || run.voiceGeneration !== voiceGeneration) return;
-    showDiagnostic(error);
-    render({risk: null, reason: 'Shield couldn’t check this transcript.', tactics: [], legit_signals: []});
+    showDiagnostic(error.raw === undefined ? error : `${error}\n${error.raw}`);
+    const reason = error.kind === 'response'
+      ? 'The scoring service returned a result Shield couldn’t read.'
+      : 'Shield couldn’t get a result from the scoring service.';
+    render({risk: null, reason, tactics: [], legit_signals: []});
     get('status').textContent = 'Try again in a moment.';
   } finally {
     run.busy = false;
@@ -388,11 +392,21 @@ async function listen(microphone) {
     stopMic?.();
     socket.close();
   };
-  function fail(message) {
+  if (audio) {
+    run.stopSample = () => {
+      clearInterval(run.timer);
+      run.cleanup();
+      session = null;
+      get('play').disabled = false;
+      get('listen').disabled = false;
+      get('stop').disabled = true;
+    };
+  }
+  function fail(message, fallbackMessage = 'Shield couldn’t hear the sample. Checking the written version.') {
     if (session !== run) return;
     failed = true;
     if (!microphone) {
-      scanText(audioTranscript, 'Shield couldn’t hear the sample. Checking the written version.');
+      scanText(audioTranscript, fallbackMessage);
       showDiagnostic(message);
       return;
     }
@@ -437,7 +451,12 @@ async function listen(microphone) {
     if (message.ready && !microphone) {
       try {
         const response = await fetch('/sample.wav', {signal: run.controller.signal});
-        if (!response.ok) throw new Error('Audio unavailable');
+        if (!response.ok) {
+          return fail(`Sample audio request returned HTTP ${response.status}`,
+            response.status === 404
+              ? 'The sample audio is missing. Checking the written version.'
+              : 'Shield couldn’t load the sample audio. Checking the written version.');
+        }
         const wav = await response.arrayBuffer();
         const view = new DataView(wav);
         let offset = 12;
@@ -468,8 +487,8 @@ async function listen(microphone) {
         };
         audio.onended = stream;
         pump = setInterval(stream, 100);
-      } catch {
-        fail('Could not play the bundled audio.');
+      } catch (error) {
+        fail(error, 'Shield couldn’t play the sample audio. Checking the written version.');
       }
     }
     if (message.type === 'Results' && !run.voicePaused) {
